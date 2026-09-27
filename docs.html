@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADYENE HITTER // CHECKOUT ENGINE — DOCS</title>
+<style>
+  :root{
+    --bg:#000000;--panel:#050505;--ink:#f5f0e6;--dim:#8f8f8f;--faint:#4a4a4a;
+    --orange:#ff4d00;--orange-bright:#ff6a1a;--orange-deep:#b33a00;
+    --line:#1c1c1c;--line-orange:#3a1600;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;border-radius:0!important;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"IBM Plex Mono","JetBrains Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  ::selection{background:var(--orange);color:#000;}
+  a{color:var(--orange-bright);text-decoration:none;}
+  a:hover{background:var(--orange);color:#000;}
+  .frame{max-width:1120px;margin:0 auto;border-left:2px solid var(--line);border-right:2px solid var(--line);min-height:100vh;}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--line);padding:10px 18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);}
+  .topbar .dot{display:inline-block;width:10px;height:10px;background:var(--orange);margin-right:8px;animation:blink 1.2s steps(1) infinite;}
+  .topbar b{color:var(--ink);font-weight:400;}
+  @keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+
+  .hero{padding:56px 18px 40px;border-bottom:2px solid var(--line);}
+  .hero .tag{display:inline-block;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--orange-bright);border:1px solid var(--orange);padding:4px 10px;margin-bottom:22px;}
+  .hero h1{font-size:clamp(48px,11vw,128px);line-height:.86;letter-spacing:-.02em;font-weight:800;text-transform:uppercase;color:var(--ink);}
+  .hero h1 .a{color:var(--orange);}
+  .hero .sub{margin-top:18px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);}
+  .hero .sub em{color:var(--ink);font-style:normal;}
+  .hero .cursor{display:inline-block;width:14px;height:22px;background:var(--orange);vertical-align:-3px;margin-left:6px;animation:blink 1s steps(1) infinite;}
+  .hero .meta{margin-top:34px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border:2px solid var(--line);}
+  .hero .meta div{border-right:2px solid var(--line);padding:12px 14px;}
+  .hero .meta div:last-child{border-right:0;}
+  .hero .meta .k{display:block;font-size:10px;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:4px;}
+  .hero .meta .v{font-size:14px;color:var(--ink);word-break:break-all;}
+  .hero .meta .v.orange{color:var(--orange-bright);}
+
+  .marquee{overflow:hidden;border-bottom:2px solid var(--line);background:var(--panel);white-space:nowrap;}
+  .marquee .track{display:inline-block;padding:10px 0;animation:scroll 26s linear infinite;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);}
+  .marquee .track b{color:var(--orange);font-weight:400;margin:0 18px;}
+  @keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  .index{padding:40px 18px;border-bottom:2px solid var(--line);}
+  .index h2{margin-bottom:20px;}
+  .index a{display:flex;justify-content:space-between;align-items:baseline;padding:10px 2px;border-bottom:1px dotted var(--line-orange);color:var(--ink);text-transform:uppercase;letter-spacing:.06em;font-size:14px;}
+  .index a:hover{background:var(--orange);color:#000;}
+  .index a .no{color:var(--orange);font-size:11px;letter-spacing:.1em;}
+  .index a .path{color:var(--dim);font-size:12px;}
+
+  section{padding:52px 18px;border-bottom:2px solid var(--line);}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px;}
+  .sec-head .no{color:var(--orange);font-size:13px;letter-spacing:.1em;border:1px solid var(--orange);padding:2px 8px;}
+  .sec-head h2{font-size:clamp(26px,5vw,44px);line-height:1;letter-spacing:-.01em;text-transform:uppercase;font-weight:800;}
+  .sec-head h2 .dim{color:var(--dim);font-weight:400;}
+  .sec-desc{color:var(--dim);max-width:720px;margin:10px 0 26px;font-size:14px;}
+  .sec-desc b{color:var(--ink);font-weight:400;}
+
+  .ep{border:2px solid var(--line);margin-bottom:34px;}
+  .ep:hover{border-color:var(--orange);}
+  .ep .bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-bottom:2px solid var(--line);background:var(--panel);}
+  .method{font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--orange);color:#000;padding:3px 8px;font-weight:700;}
+  .path{color:var(--ink);font-size:15px;letter-spacing:.02em;}
+  .ep .body{padding:16px 14px;}
+  .ep .body .label{font-size:10px;letter-spacing:.2em;color:var(--orange-bright);text-transform:uppercase;margin:14px 0 8px;}
+  .ep .body .label:first-child{margin-top:0;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{color:var(--orange);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.1em;background:var(--panel);}
+  td code,li code,p code{color:var(--orange-bright);}
+  td .req{color:var(--orange);font-size:10px;letter-spacing:.1em;}
+  td .opt{color:var(--faint);font-size:10px;letter-spacing:.1em;}
+
+  pre{background:#050505;border:1px solid var(--line);padding:14px;font-size:13px;line-height:1.55;overflow-x:auto;color:#d8d2c4;}
+  pre .c{color:#5c5c5c;}
+  pre .k{color:var(--orange-bright);}
+  pre .p{color:var(--orange);}
+  pre .s{color:#f5f0e6;}
+  pre .num{color:#ffb38a;}
+
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin-top:6px;}
+  .flow .step{border:2px solid var(--orange);padding:10px 14px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;}
+  .flow .arrow{align-self:center;color:var(--orange);font-size:20px;}
+
+  .note{border-left:4px solid var(--orange);background:var(--panel);padding:12px 14px;font-size:13px;color:var(--dim);margin-top:16px;}
+  .note b{color:var(--orange-bright);font-weight:700;}
+
+  footer{padding:36px 18px;color:var(--faint);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+  footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:2px solid var(--line);padding-top:16px;}
+  footer b{color:var(--orange);font-weight:400;}
+
+  h3.sub-h{font-size:15px;text-transform:uppercase;letter-spacing:.08em;margin:26px 0 10px;color:var(--ink);}
+  h3.sub-h .no{color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="topbar">
+    <span><span class="dot"></span><b>SYSTEM ONLINE</b></span>
+    <span>ADYENE HITTER // CHECKOUT ENGINE</span>
+    <span>v1.0.0</span>
+  </div>
+
+  <div class="hero">
+    <span class="tag">FULL CHECKOUT AUTOMATION</span>
+    <h1>AD<span class="a">Y</span>ENE HITTER</h1>
+    <div class="sub">Pay-by-Link & merchant checkout engine <em>— scrape → encrypt → submit → 3DS → parse</em><span class="cursor"></span></div>
+
+    <div class="meta">
+      <div><span class="k">BASE URL</span><span class="v orange">https://adyene-hitter.onrender.com</span></div>
+      <div><span class="k">AUTH</span><span class="v">NONE</span></div>
+      <div><span class="k">FORMAT</span><span class="v">JSON</span></div>
+      <div><span class="k">TLS</span><span class="v">chrome131</span></div>
+    </div>
+  </div>
+
+  <div class="marquee">
+    <span class="track">
+      /hit<b>★</b>/check<b>★</b>/docs<b>★</b>/health<b>★</b>SCRAPE<b>★</b>BOOTSTRAP<b>★</b>PUBKEY<b>★</b>ENCRYPT<b>★</b>SUBMIT<b>★</b>3DS-BYPASS<b>★</b>PARSE<b>★</b>CHROME-TLS<b>★</b>0KB-JS<b>★</b>
+      /hit<b>★</b>/check<b>★</b>/docs<b>★</b>/health<b>★</b>SCRAPE<b>★</b>BOOTSTRAP<b>★</b>PUBKEY<b>★</b>ENCRYPT<b>★</b>SUBMIT<b>★</b>3DS-BYPASS<b>★</b>PARSE<b>★</b>CHROME-TLS<b>★</b>0KB-JS<b>★</b>
+    </span>
+  </div>
+
+  <div class="index" id="index">
+    <div class="sec-head"><span class="no">00</span><h2>INDEX</h2></div>
+    <a href="#flow"><span class="no">01</span> THE FLOW <span class="path">7 steps</span></a>
+    <a href="#card"><span class="no">02</span> CARD INPUT <span class="path">CC|MM|YY|CVV</span></a>
+    <a href="#proxy"><span class="no">03</span> PROXY INPUT <span class="path">all formats</span></a>
+    <a href="#hit"><span class="no">04</span> /hit <span class="path">single card</span></a>
+    <a href="#check"><span class="no">05</span> /check <span class="path">batch</span></a>
+    <a href="#country"><span class="no">06</span> COUNTRY OVERRIDE <span class="path">geo pin</span></a>
+    <a href="#decline"><span class="no">07</span> DECLINE CODES <span class="path">mapping</span></a>
+    <a href="#health"><span class="no">08</span> /health <span class="path">status</span></a>
+  </div>
+
+  <!-- 01 -->
+  <section id="flow">
+    <div class="sec-head"><span class="no">01</span><h2>THE FLOW <span class="dim">/ seven steps</span></h2></div>
+    <p class="sec-desc">One <code>/hit</code> call runs the entire Adyen checkout chain automatically. No browser, no manual steps.</p>
+    <div class="flow">
+      <div class="step">1. SCRAPE</div><div class="arrow">→</div>
+      <div class="step">2. BOOTSTRAP</div><div class="arrow">→</div>
+      <div class="step">3. PUBKEY</div><div class="arrow">→</div>
+      <div class="step">4. ENCRYPT</div><div class="arrow">→</div>
+      <div class="step">5. SUBMIT</div><div class="arrow">→</div>
+      <div class="step">6. 3DS</div><div class="arrow">→</div>
+      <div class="step">7. PARSE</div>
+    </div>
+    <table style="margin-top:16px;">
+      <tr><th>#</th><th>Stage</th><th>What it does</th></tr>
+      <tr><td>1</td><td><code>scrape</code></td><td>fetch the checkout page, extract clientKey / sessionId / sessionData / publicKey / linkId / amount / merchant</td></tr>
+      <tr><td>2</td><td><code>bootstrap</code></td><td>Pay-by-Link session setup — fresh sessionId + sessionData per attempt</td></tr>
+      <tr><td>3</td><td><code>pubkey</code></td><td>resolve <code>exp|mod</code> public key from the clientKey when the page didn't expose it</td></tr>
+      <tr><td>4</td><td><code>encrypt</code></td><td>CSE/JWE encrypt the card — auto-detects v6 JWE vs legacy CSE</td></tr>
+      <tr><td>5</td><td><code>submit</code></td><td>session payment, with direct endpoint-probing fallback for merchant checkouts</td></tr>
+      <tr><td>6</td><td><code>3ds</code></td><td>resolve IdentifyShopper / ChallengeShopper / RedirectShopper via the bypass pipeline</td></tr>
+      <tr><td>7</td><td><code>parse</code></td><td>map the response to a clean decline code + psp + amount</td></tr>
+    </table>
+  </section>
+
+  <!-- 02 -->
+  <section id="card">
+    <div class="sec-head"><span class="no">02</span><h2>CARD INPUT <span class="dim">/ one string</span></h2></div>
+    <p class="sec-desc">Cards are pipe-delimited, same as the encryptor. Year accepts 2 or 4 digits.</p>
+    <pre>CC|<span class="p">MM</span>|YY|CVV      <span class="c">// 2-digit year</span>
+CC|<span class="p">MM</span>|YYYY|CVV    <span class="c">// 4-digit year</span>
+<span class="num">4111111111111111</span>|<span class="num">12</span>|<span class="num">28</span>|<span class="num">737</span></pre>
+    <h3 class="sub-h"><span class="no">■</span> CCN MODE</h3>
+    <p class="sec-desc">Set <code>ccn:true</code> and pass only the number — the engine auto-attaches a synthetic expiry + CVV (Amex-aware 4-digit) for CCN-check merchants.</p>
+  </section>
+
+  <!-- 03 -->
+  <section id="proxy">
+    <div class="sec-head"><span class="no">03</span><h2>PROXY INPUT <span class="dim">/ all formats</span></h2></div>
+    <p class="sec-desc">Optional <code>proxy</code> field routes the whole engine through your proxy.</p>
+    <pre>host:port
+user:pass@host:port
+http://host:port
+https://user:pass@host:port
+socks4://host:port
+socks5://user:pass@host:port</pre>
+    <div class="note"><b>NOTE:</b> the proxy is applied to every request in the chain — scrape, bootstrap, pubkey, submit, and 3DS resolution all ride the same proxy, so the shopper IP stays coherent.</div>
+  </section>
+
+  <!-- 04 -->
+  <section id="hit">
+    <div class="sec-head"><span class="no">04</span><h2>/hit</h2></div>
+    <p class="sec-desc">Run the full flow on a single card.</p>
+    <div class="ep">
+      <div class="bar"><span class="method">POST</span><span class="path">/hit</span></div>
+      <div class="body">
+        <div class="label">Parameters</div>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Notes</th></tr>
+          <tr><td><code>url</code> <span class="req">REQUIRED</span></td><td>string</td><td>checkout page or Pay-by-Link URL</td></tr>
+          <tr><td><code>card</code> <span class="req">REQUIRED</span></td><td>string</td><td><code>CC|MM|YY|CVV</code></td></tr>
+          <tr><td><code>proxy</code> <span class="opt">OPTIONAL</span></td><td>string</td><td>see proxy formats</td></tr>
+          <tr><td><code>ccn</code> <span class="opt">OPTIONAL</span></td><td>bool</td><td>CCN-only mode (auto CVV)</td></tr>
+          <tr><td><code>country</code> <span class="opt">OPTIONAL</span></td><td>string</td><td>pin shopper geo (see §06)</td></tr>
+        </table>
+
+        <div class="label">Request</div>
+        <pre>curl -s -X POST <span class="p">https://adyene-hitter.onrender.com/hit</span> \
+  -H <span class="s">'Content-Type: application/json'</span> \
+  -d <span class="s">'{</span>
+    <span class="k">"url"</span>: <span class="s">"https://checkout.example.com/pay"</span>,
+    <span class="k">"card"</span>: <span class="s">"4111111111111111|12|28|737"</span>,
+    <span class="k">"proxy"</span>: <span class="s">"http://user:pass@host:port"</span>,
+    <span class="k">"country"</span>: <span class="s">"US"</span>
+  <span class="s">}'</span></pre>
+
+        <div class="label">Response</div>
+        <pre>{
+  <span class="k">"success"</span>: <span class="num">true</span>,
+  <span class="k">"result"</span>: {
+    <span class="k">"attempt"</span>: <span class="num">1</span>,
+    <span class="k">"success"</span>: <span class="num">false</span>,
+    <span class="k">"decline_code"</span>: <span class="s">"insufficient_funds"</span>,
+    <span class="k">"error"</span>: <span class="s">"Not enough balance (2)"</span>,
+    <span class="k">"is_live"</span>: <span class="num">true</span>,
+    <span class="k">"psp"</span>: <span class="s">"P123456789"</span>,
+    <span class="k">"merchant"</span>: <span class="s">"Example Shop"</span>,
+    <span class="k">"amount"</span>: <span class="s">"USD 48.87"</span>,
+    <span class="k">"response_time"</span>: <span class="num">3.2</span>,
+    <span class="k">"3ds_attempted"</span>: <span class="num">true</span>,
+    <span class="k">"3ds_type"</span>: <span class="s">"ChallengeShopper"</span>,
+    <span class="k">"3ds_resolved"</span>: <span class="num">true</span>,
+    <span class="k">"raw_response"</span>: { <span class="c">...full Adyen response...</span> }
+  }
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section id="check">
+    <div class="sec-head"><span class="no">05</span><h2>/check</h2></div>
+    <p class="sec-desc">Batch mode — run a list of cards against one checkout, sharing a single persistent session for speed.</p>
+    <div class="ep">
+      <div class="bar"><span class="method post">POST</span><span class="path">/check</span></div>
+      <div class="body">
+        <div class="label">Parameters</div>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Notes</th></tr>
+          <tr><td><code>url</code> <span class="req">REQUIRED</span></td><td>string</td><td>checkout page or Pay-by-Link URL</td></tr>
+          <tr><td><code>cards</code> <span class="req">REQUIRED</span></td><td>string[]</td><td>list of <code>CC|MM|YY|CVV</code> strings</td></tr>
+          <tr><td><code>proxy</code> <span class="opt">OPTIONAL</span></td><td>string</td><td>see proxy formats</td></tr>
+          <tr><td><code>ccn</code> <span class="opt">OPTIONAL</span></td><td>bool</td><td>CCN-only mode</td></tr>
+          <tr><td><code>country</code> <span class="opt">OPTIONAL</span></td><td>string</td><td>pin shopper geo</td></tr>
+        </table>
+        <div class="label">Request</div>
+        <pre>curl -s -X POST <span class="p">https://adyene-hitter.onrender.com/check</span> \
+  -H <span class="s">'Content-Type: application/json'</span> \
+  -d <span class="s">'{</span>
+    <span class="k">"url"</span>: <span class="s">"https://checkout.example.com/pay"</span>,
+    <span class="k">"cards"</span>: [
+      <span class="s">"4111111111111111|12|28|737"</span>,
+      <span class="s">"5326555255199999|03|29|555"</span>
+    ]
+  <span class="s">}'</span></pre>
+        <div class="label">Response</div>
+        <pre>{
+  <span class="k">"success"</span>: <span class="num">true</span>,
+  <span class="k">"results"</span>: [ { <span class="c">...result 1...</span> }, { <span class="c">...result 2...</span> } ]
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section id="country">
+    <div class="sec-head"><span class="no">06</span><h2>COUNTRY OVERRIDE <span class="dim">/ geo pin</span></h2></div>
+    <p class="sec-desc">By default the engine builds the shopper from the checkout page's country. <code>country</code> overrides it — name, phone, address, timezone and browser locale all snap to one coherent geo.</p>
+    <table>
+      <tr><th>Code</th><th>Country</th><th>Code</th><th>Country</th></tr>
+      <tr><td><code>US</code></td><td>United States</td><td><code>NL</code></td><td>Netherlands</td></tr>
+      <tr><td><code>GB</code></td><td>United Kingdom</td><td><code>SE</code></td><td>Sweden</td></tr>
+      <tr><td><code>DE</code></td><td>Germany</td><td><code>AU</code></td><td>Australia</td></tr>
+      <tr><td><code>FR</code></td><td>France</td><td><code>CA</code></td><td>Canada</td></tr>
+      <tr><td><code>ES</code></td><td>Spain</td><td><code>SG</code></td><td>Singapore</td></tr>
+      <tr><td><code>IT</code></td><td>Italy</td><td><code></code></td><td></td></tr>
+    </table>
+  </section>
+
+  <!-- 07 -->
+  <section id="decline">
+    <div class="sec-head"><span class="no">07</span><h2>DECLINE CODES <span class="dim">/ mapping</span></h2></div>
+    <div class="ep">
+      <div class="body">
+        <table>
+          <tr><th>Refusal / Code</th><th>decline_code</th></tr>
+          <tr><td>Authorised</td><td><code>authorised</code></td></tr>
+          <tr><td>Not enough balance / 2</td><td><code>insufficient_funds</code></td></tr>
+          <tr><td>CVC Declined / 10</td><td><code>incorrect_cvc</code></td></tr>
+          <tr><td>Expired Card / 6</td><td><code>expired_card</code></td></tr>
+          <tr><td>Blocked Card / 5</td><td><code>blocked_card</code></td></tr>
+          <tr><td>Referral / 3</td><td><code>referral</code></td></tr>
+          <tr><td>RedirectShopper / ChallengeShopper</td><td><code>3ds_required</code></td></tr>
+          <tr><td>Received / Pending</td><td><code>pending</code></td></tr>
+          <tr><td>No Adyen on page</td><td><code>no_adyen</code></td></tr>
+          <tr><td>Pay by Link closed / consumed</td><td><code>link_closed</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section id="health">
+    <div class="sec-head"><span class="no">08</span><h2>/health</h2></div>
+    <div class="ep">
+      <div class="bar"><span class="method get">GET</span><span class="path">/health</span></div>
+      <div class="body">
+        <pre>curl -s <span class="p">https://adyene-hitter.onrender.com/health</span>
+
+{
+  <span class="k">"status"</span>: <span class="s">"healthy"</span>,
+  <span class="k">"service"</span>: <span class="s">"Adyen Hitter Engine"</span>,
+  <span class="k">"engine"</span>: <span class="s">"adyen_hitter"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="row">
+      <span>ADYENE HITTER <b>v1.0.0</b> — checkout engine</span>
+      <span>base: <b>adyene-hitter.onrender.com</b></span>
+      <span>NO AUTH · JSON · CHROME-TLS · 0KB JS</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

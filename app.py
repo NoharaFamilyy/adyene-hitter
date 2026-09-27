@@ -1,6 +1,7 @@
 # adyene-hitter — hosted Adyen checkout engine
 from flask import Flask, request, jsonify
 import asyncio
+import os
 import re
 
 from adyen_hitter import AdyenHitter
@@ -50,15 +51,15 @@ def _run(coro, timeout=90):
     return asyncio.run(asyncio.wait_for(coro, timeout=timeout))
 
 
-async def _hit_one(url, card, proxy, ccn):
-    hitter = AdyenHitter(url, proxy_data=proxy)
+async def _hit_one(url, card, proxy, ccn, country):
+    hitter = AdyenHitter(url, proxy_data=proxy, country=country)
     if ccn:
         return await hitter.hit_ccn(card, 1, 0)
     return await hitter.hit(card, 1, 0)
 
 
-async def _check(url, cards, proxy, ccn):
-    hitter = AdyenHitter(url, proxy_data=proxy)
+async def _check(url, cards, proxy, ccn, country):
+    hitter = AdyenHitter(url, proxy_data=proxy, country=country)
     await hitter.open_session()
     try:
         out = []
@@ -76,6 +77,7 @@ def hit():
     url = (data.get("url") or "").strip()
     card_str = data.get("card") or ""
     ccn = bool(data.get("ccn", False))
+    country = (data.get("country") or "").strip().upper() or None
 
     if not url:
         return jsonify({"error": "Missing 'url'"}), 400
@@ -85,7 +87,7 @@ def hit():
 
     proxy = parse_proxy(data.get("proxy"))
     try:
-        result = _run(_hit_one(url, card, proxy, ccn))
+        result = _run(_hit_one(url, card, proxy, ccn, country))
     except asyncio.TimeoutError:
         return jsonify({"error": "Checkout timed out"}), 504
     except Exception as e:
@@ -100,6 +102,7 @@ def check():
     url = (data.get("url") or "").strip()
     cards_raw = data.get("cards") or []
     ccn = bool(data.get("ccn", False))
+    country = (data.get("country") or "").strip().upper() or None
 
     if not url:
         return jsonify({"error": "Missing 'url'"}), 400
@@ -115,13 +118,22 @@ def check():
 
     proxy = parse_proxy(data.get("proxy"))
     try:
-        results = _run(_check(url, cards, proxy, ccn))
+        results = _run(_check(url, cards, proxy, ccn, country))
     except asyncio.TimeoutError:
         return jsonify({"error": "Checkout timed out"}), 504
     except Exception as e:
         return jsonify({"error": "Engine error", "message": str(e)[:300]}), 500
 
     return jsonify({"success": True, "results": results}), 200
+
+
+@app.route("/docs", methods=["GET"])
+def docs():
+    docs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs.html")
+    if not os.path.exists(docs_path):
+        return jsonify({"error": "docs.html not found"}), 404
+    with open(docs_path, "r", encoding="utf-8") as f:
+        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 @app.route("/health", methods=["GET"])
@@ -134,8 +146,9 @@ def index():
     return jsonify({
         "service": "Adyen Hitter",
         "endpoints": {
-            "/hit": "POST {url, card, proxy?, ccn?} — full checkout flow on one card",
-            "/check": "POST {url, cards[], proxy?, ccn?} — batch checkout flow",
+            "/hit": "POST {url, card, proxy?, ccn?, country?} — full checkout flow on one card",
+            "/check": "POST {url, cards[], proxy?, ccn?, country?} — batch checkout flow",
+            "/docs": "this documentation page (html)",
             "/health": "health check",
         },
     }), 200

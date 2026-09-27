@@ -332,11 +332,12 @@ class AdyenHitter:
         'restricted_card', 'referral', 'issuer_unavailable',
     }
 
-    def __init__(self, url: str, proxy_data: Optional[dict] = None):
+    def __init__(self, url: str, proxy_data: Optional[dict] = None, country: Optional[str] = None):
         self.url = url.strip()
         if not self.url.startswith(("http://", "https://")):
             self.url = f"https://{self.url}"
         self.proxy_data = proxy_data
+        self.country = (country or "").strip().upper() or None
         self._base_cfg: Optional[dict] = None
         self._cached_pk: Optional[str] = None
 
@@ -1166,7 +1167,7 @@ class AdyenHitter:
 
             sid   = cfg.get('sessionId')
             sdata = cfg.get('sessionData')
-            profile = ShopperProfile(cfg.get('countryCode') or 'US') if _HAS_BYPASS else None
+            profile = ShopperProfile(self.country or cfg.get('countryCode') or 'US') if _HAS_BYPASS else None
 
             if sid and sdata:
                 data = await self._pay_session(
@@ -1296,7 +1297,7 @@ class AdyenHitter:
             # ── 4. submit ───────────────────────────────────────────────
             sid   = cfg.get('sessionId')
             sdata = cfg.get('sessionData')
-            profile = ShopperProfile(cfg.get('countryCode') or 'US') if _HAS_BYPASS else None
+            profile = ShopperProfile(self.country or cfg.get('countryCode') or 'US') if _HAS_BYPASS else None
 
             if sid and sdata:
                 data = await self._pay_session(
