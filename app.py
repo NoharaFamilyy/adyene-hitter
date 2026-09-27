@@ -1,12 +1,48 @@
 # adyene-hitter — hosted Adyen checkout engine
 from flask import Flask, request, jsonify
 import asyncio
+import collections
 import os
 import re
+from datetime import datetime, timezone
 
 from adyen_hitter import AdyenHitter
 
 app = Flask(__name__)
+
+RUN_LOG = collections.deque(maxlen=500)
+
+
+def mask_card(num):
+    """Show BIN + last4 only — never the full PAN/CVV in logs."""
+    if not num or len(num) < 8:
+        return "****"
+    return num[:6] + "*" * (len(num) - 10) + num[-4:]
+
+
+def log_run(kind, url, card, result):
+    rec = {
+        "ts": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        "kind": kind,
+        "url": url,
+        "card": mask_card((card or {}).get("card")),
+        "success": result.get("success"),
+        "decline_code": result.get("decline_code"),
+        "error": result.get("error"),
+        "psp": result.get("psp"),
+        "merchant": result.get("merchant"),
+        "amount": result.get("amount"),
+        "response_time": result.get("response_time"),
+        "3ds": result.get("3ds_type"),
+    }
+    RUN_LOG.appendleft(rec)
+    print(
+        f"[HIT] {rec['ts']} {kind} card={rec['card']} "
+        f"success={rec['success']} code={rec['decline_code']} "
+        f"err={rec['error']} psp={rec['psp']} t={rec['response_time']}s",
+        flush=True,
+    )
+    return rec
 
 CARD_RE = re.compile(r"^\s*(\d{13,19})\s*\|\s*(\d{1,2})\s*\|\s*(\d{2}|\d{4})\s*\|\s*(\d{3,4})\s*$")
 
@@ -93,6 +129,7 @@ def hit():
     except Exception as e:
         return jsonify({"error": "Engine error", "message": str(e)[:300]}), 500
 
+    log_run("hit", url, card, result)
     return jsonify({"success": True, "result": result}), 200
 
 
@@ -124,6 +161,8 @@ def check():
     except Exception as e:
         return jsonify({"error": "Engine error", "message": str(e)[:300]}), 500
 
+    for c, r in zip(cards, results):
+        log_run("check", url, c, r)
     return jsonify({"success": True, "results": results}), 200
 
 
@@ -134,6 +173,15 @@ def docs():
         return jsonify({"error": "docs.html not found"}), 404
     with open(docs_path, "r", encoding="utf-8") as f:
         return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+@app.route("/logs", methods=["GET"])
+def logs():
+    clear = request.args.get("clear") in ("1", "true", "yes")
+    items = list(RUN_LOG)
+    if clear:
+        RUN_LOG.clear()
+    return jsonify({"count": len(items), "logs": items}), 200
 
 
 @app.route("/health", methods=["GET"])
@@ -149,6 +197,7 @@ def index():
             "/hit": "POST {url, card, proxy?, ccn?, country?} — full checkout flow on one card",
             "/check": "POST {url, cards[], proxy?, ccn?, country?} — batch checkout flow",
             "/docs": "this documentation page (html)",
+            "/logs": "recent run log (masked cards)",
             "/health": "health check",
         },
     }), 200
